@@ -19,6 +19,8 @@ const api_admin = require('../controllers/invest/adminservice')
 var Auth = require('../controllers/Auth')
 var AuthUser = require('../utils');
 const multer = require('multer');
+var cron = require('node-cron');
+
 const storage = multer.diskStorage({
 	destination: (req, file, cb) => {
 		cb(null, './public/uploads');
@@ -38,6 +40,10 @@ const fileFilter = (req,file,cb) => {
 		cb(null, false)
 	}
 }
+
+cron.schedule('* * * * *', () => {
+	console.log('running a task every minute');
+  });
 
 const upload = multer({
 	storage: storage,
