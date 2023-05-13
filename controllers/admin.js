@@ -26,7 +26,7 @@ module.exports = {
   },
 
   edit : (req, res) => {
-     const product = Product.findById(req.params.id, (error, result) =>{
+     Product.findById(req.params.id, (error, result) =>{
       if(result){
         result.name = req.body.name;
         result.brand =  req.body.brand;
