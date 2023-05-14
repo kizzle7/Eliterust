@@ -89,7 +89,7 @@ module.exports = (app) => {
   router.get("/api/getpayment/:id", AuthUser.isAuth, payment.getuserPayment);
   router.get("/api/getinvestments/:id", AuthUser.isAuth, invests.getInvestment);
   router.get("/api/updateinvestment/:id", AuthUser.isAuth, invests.updateInvestment);
-
+  router.get("/api/initiateWatcher/:id", AuthUser.isAuth, invests.initiateWatcher);
 
   router.get("/api/getplans", AuthUser.isAuth, plans.getPlans);
   router.post("/api/plan", AuthUser.isAuth, plans.createPlan);

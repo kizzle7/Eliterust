@@ -10,9 +10,14 @@ const authSchema = new mongoose.Schema({
   invest_type: { type: String, required: false },
   potentialAmt: { type: Number, required: false },
   status: { type: String, required: "Growing" },
+  fullPotentialAmtCl:{type: Number, required: false, defaultValue:0},
   percent: { type: String, required: false },
   investmentdatecreated: { type: String, required: false },
-  investmentdays: { type: Date, required: false },
+  investmentdays: { type: Number, required: false },
+  validPotentialAmt:{ type: Number, required: false, default: 0 },
+  fullVestedAmount:{ type: Number, required: false, default: 0 },
+  perRate:{ type: Number, required: false, default: 0 }
+
 });
 var Auth = mongoose.model("investments", authSchema);
 

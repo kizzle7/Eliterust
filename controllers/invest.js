@@ -1,6 +1,10 @@
 var Invest = require("../models/invest-user");
 var Plan = require("../models/invest-plans");
 var dt = new Date();
+var CronJob = require("cron").CronJob;
+var cron = require("node-cron");
+let currentDate = Date.now();
+currentDateVal = new Date(currentDate).toLocaleDateString();
 module.exports = {
   createInvestementt: (req, res) => {
     try {
@@ -13,11 +17,14 @@ module.exports = {
           profit: req.body.profit,
           invest_name: req.body.invest_name,
           percent: req.body.percent,
+          perRate:req.body.perRate,
+          fullPotentialAmtCl: req.body.fullPotentialAmt,
+          fullVestedAmount: parseInt(req.body.amount) + req.body.profit,
           invest_type: req.body.invest_type,
           investmentdatecreated: new Date().toLocaleDateString(),
           investmentdays: req.body.invest_days,
           status: "Growing",
-          maturityTime: dt.setDate(dt.getDate() + req.body.invest_days),
+          maturityTime: dt.setDate(dt.getDate() + Number(req.body.invest_days)),
         });
         plan.save();
         res.json({ investment: plan });
@@ -55,78 +62,101 @@ module.exports = {
       }
     }).sort({ _id: -1 });
   },
-
-  updateInvestment: (req, res) => {
-    Invest.find({ user_id: req.params.id }, (err, result) => {
+  investWatcher: (id) => {
+    Invest.find({ user_id: id }, (err, result) => {
       if (result) {
-        const allInvestmentsGrowing = result.filter(
-          (a) => a.status === "Growing"
-        );
-        getDailyIncreamenttillMatureTotal = [];
-        allInvestmentsGrowing?.map((dt) => {
-          getDailyIncreamenttillMatureTotal.push({
-            amount:
-              (parseInt(dt?.amount) * parseInt(dt?.percent)) /
-              100 /
-              dt?.investmentdays,
-            user_id: dt?.user_id,
-            invest_id: dt?.invest_id,
-            potentialAmt: dt?.potentialAmt,
-            profit: dt?.profit,
-            invest_name: dt?.invest_name,
-            percent: dt?.percent,
-            invest_type: dt?.invest_type,
-            investmentdatecreated: dt?.investmentdatecreated,
-            id: dt?._id,
-          });
-        });
-        var sumTotal = getDailyIncreamenttillMatureTotal.reduce(
-          (accumulator, currentValue) => {
-            return accumulator + currentValue;
-          },
-          0
-        );
-        // console.log(getDailyIncreamenttillMatureTotal)
-        for (
-          var i = 0, l = getDailyIncreamenttillMatureTotal.length;
-          i < l;
-          i++
-        ) {
-          const idLists = getDailyIncreamenttillMatureTotal[i];
-
-          Invest.findOne(
-            { _id: getDailyIncreamenttillMatureTotal[i].id },
-            (error, result) => {
-              if (result._id.toString() === idLists?.id.toString()) {
-                result.potentialAmt =  Number(result.potentialAmt + idLists?.amount);
-                result.save();
-                console.log(result)
-              } else {
-                console.log("its not same");
-              }
-              // console.log(result);
-
-              // if(result){
-              //   res.status(200).json({
-              //     productupdate: result,
-              //     msg: 'Product Updated Successfully'
-              //   })
-              // }
-              // else{
-              //   res.status(500).json({
-              //     msg: error
-              //   })
-              // }
-            }
-          );
+        for (var i = 0, l = result.length; i < l; i++) {
+          if (
+            result[i].potentialAmt.toString() ===
+            result[i].fullVestedAmount.toString() && result[i].status !== 'Matured'
+          ) {
+            Invest.findOne({ _id: result[i]._id }, (error, result) => {
+              result.status = "Matured";
+              result.save();
+              return;
+            });
+          } else {
+            module.exports.updateInvestment(id);
+          }
         }
-        // res.json({
-        //   totalPortfolioInvestment: sumTotal,
-        // });
       } else {
         res.json({
           error: err,
         });
+      }
+    });
+  },
+
+  initiateWatcher: (req, res) => {
+    module.exports.investWatcher(req.params.id);
+
+    // cron.schedule("00 00 00 * * * ", () => {
+    //   module.exports.investWatcher(req.params.id);
+    // });
+    // var cronJob1 = new CronJob({
+    //   cronTime: "00 00 00 * * * ",
+    //   onTick: function () {
+    //     module.exports.investWatcher(req.params.id);
+    //   },
+    //   start: true,
+    //   runOnInit: false,
+    // });
+  },
+
+  updateInvestment: (id) => {
+    Invest.find({ user_id: id }, (err, result) => {
+      if (result) {
+        const allInvestmentsGrowing = result.filter(
+          (a) => a.status === "Growing"
+        );
+        if (allInvestmentsGrowing?.length > 0) {
+          getDailyIncreamenttillMatureTotal = [];
+          allInvestmentsGrowing?.map((dt) => {
+            getDailyIncreamenttillMatureTotal.push({
+              amount: Number(dt?.profit / dt?.investmentdays),
+              user_id: dt?.user_id,
+              invest_id: dt?.invest_id,
+              potentialAmt: dt?.potentialAmt,
+              profit: dt?.profit,
+              fullPotentialAmtCl:dt?.fullPotentialAmtCl,
+              investmentdays:dt?.investmentdays,
+              invest_name: dt?.invest_name,
+              percent: dt?.percent,
+              invest_type: dt?.invest_type,
+              perRate:dt?.perRate,
+              investmentdatecreated: dt?.investmentdatecreated,
+              id: dt?._id,
+            });
+          });
+
+          for (
+            var i = 0, l = getDailyIncreamenttillMatureTotal.length;
+            i < l;
+            i++
+          ) {
+            const idLists = getDailyIncreamenttillMatureTotal[i];
+            Invest.findOne(
+              { _id: getDailyIncreamenttillMatureTotal[i].id },
+              (error, result) => {
+                if (result._id.toString() === idLists?.id.toString()) {
+                  result.validPotentialAmt = Number(
+                    result.potentialAmt + idLists?.amount
+                  );
+                  result.potentialAmt =
+                    result.potentialAmt + idLists?.perRate;
+                  result.save();
+                  console.log(result);
+                } else {
+                }
+              }
+            );
+          }
+          // res.json({
+          //   totalPortfolioInvestment: sumTotal,
+          // });
+        } else {
+          console.log('no error')
+        }
       }
     });
   },
