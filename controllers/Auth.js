@@ -12,6 +12,7 @@ module.exports = {
                 id: result._id,
                 name: result.name,
                 email: result.email,
+                isAdmin:result.isAdmin,
                 token: token.getToken(result),
               },
             });
@@ -28,7 +29,7 @@ module.exports = {
   register: (req, res) => {
     try {
       if (req.body.email) {
-        User.findOne({ email: req.body.email }, (err, result) => {
+        User.findOne({ email: req.body.email, phone:req.body.phone }, (err, result) => {
           if (result) {
             res.status(401).json({ msg: `User with same email or phone number already exists` });
           } else {
@@ -43,7 +44,7 @@ module.exports = {
               isAdmin: req.body.isAdmin,
             });
             user.save();
-            res.json({ newUser: user, token: token.getToken(user) });
+            res.json({ newUser: user, token: token.getToken(user), isAdmin: user.isAdmin });
           }
         });
       }

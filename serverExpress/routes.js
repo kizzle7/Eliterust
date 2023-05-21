@@ -20,6 +20,7 @@ var Auth = require("../controllers/Auth");
 var AuthUser = require("../utils");
 const multer = require("multer");
 var cron = require("node-cron");
+const { users } = require("../controllers/Auth");
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -38,9 +39,6 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-cron.schedule("* * * * *", () => {
-  console.log("running a task every minute");
-});
 
 // var cronJob1 = new CronJob({
 //   cronTime: "00 00 00 * * * ",
@@ -86,17 +84,36 @@ module.exports = (app) => {
     AuthUser.isAuth,
     invests.createInvestementt
   );
+
   router.get("/api/getpayment/:id", AuthUser.isAuth, payment.getuserPayment);
   router.get("/api/getinvestments/:id", AuthUser.isAuth, invests.getInvestment);
-  router.get("/api/updateinvestment/:id", AuthUser.isAuth, invests.updateInvestment);
-  router.get("/api/initiateWatcher/:id", AuthUser.isAuth, invests.initiateWatcher);
+  router.get(
+    "/api/updateinvestment/:id",
+    AuthUser.isAuth,
+    invests.updateInvestment
+  );
+  router.get(
+    "/api/initiateWatcher/:id",
+    AuthUser.isAuth,
+    invests.initiateWatcher
+  );
+  router.get("/api/get-all-users", AuthUser.isAuth, user.getUsersList);
+  router.put("/api/user/:id", AuthUser.isAuth, user.edit);
+  router.put("/api/user/acc/:id", AuthUser.isAuth, user.editAcc);
+  router.put("/api/user/kyc/:id", AuthUser.isAuth, user.editKyc);
 
+  router.post("/api/movetoWallet", AuthUser.isAuth, invests.updateWallet);
   router.get("/api/getplans", AuthUser.isAuth, plans.getPlans);
   router.post("/api/plan", AuthUser.isAuth, plans.createPlan);
-
+  router.delete("/api/plan/:id", AuthUser.isAuth, plans.delete);
+  router.put("/api/plan/:id", AuthUser.isAuth, plans.edit);
+  router.post("/api/btcPrice", AuthUser.isAuth, invests.getBtcPrice);
+  router.get("/api/admin/transactions", AuthUser.isAuth, payment.adminTrans);
   router.get("/api/users", Auth.users);
   router.post("/api/login/admin", Auth.loginAdmin);
-
+  router.get("/api/getpayments/:id", payment.getuserPaymentInfo);
+  router.get("/api/confirmUserPay/:id", payment.confirmPayment);
+  
   router.post(
     "/api/admin/create",
     upload.single("image"),

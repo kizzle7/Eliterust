@@ -5,11 +5,11 @@ module.exports = {
       if (req.body) {
         const plan = new Plan({
           name: req.body.name,
-          no_of_days: req.body.days,
+          no_of_days: req.body.no_of_days,
           percent: req.body.percent,
           min: req.body.min,
           max: req.body.max,
-          invest_type : req.body.type
+          invest_type : req.body.invest_type
         });
         plan.save();
         res.json({ plan: plan });
@@ -52,7 +52,7 @@ module.exports = {
     Plan.findById(req.params.id, (error, result) => {
       if (result) {
         result.name = req.body.name;
-        result.no_of_days = req.body.days;
+        result.no_of_days = req.body.no_of_days;
         result.percent = req.body.percent;
         result.min = req.body.min;
         result.max = req.body.max;
