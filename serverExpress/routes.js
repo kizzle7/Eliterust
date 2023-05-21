@@ -94,7 +94,6 @@ module.exports = (app) => {
   );
   router.get(
     "/api/initiateWatcher/:id",
-    AuthUser.isAuth,
     invests.initiateWatcher
   );
   router.get("/api/get-all-users", AuthUser.isAuth, user.getUsersList);
