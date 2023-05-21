@@ -144,7 +144,7 @@ module.exports = {
               return;
             });
           } else {
-            console.log("proceed to update");
+            console.log("proceed to jupdate");
             module.exports.updateInvestment(id);
           }
         }
