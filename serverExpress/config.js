@@ -40,9 +40,8 @@ module.exports = (app) => {
   //   console.log('Database is started')
 
   // });
-
   mongoose.connect(
-    "mongodb+srv://alarconkelly38:4marketDaysP2023@cluster0.u4dwhay.mongodb.net/?retryWrites=true&w=majority",
+    "mongodb+srv://elitetrustsinvestment:hsQ3TwWnpwsrn6vk@cluster0.vflkf.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0",
     {
       useUnifiedTopology: true,
       useNewUrlParser: true,
