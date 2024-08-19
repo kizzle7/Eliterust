@@ -30,16 +30,19 @@ module.exports = (app) => {
 //     client.close();
 //   });
 
-  mongoose.connect("mongodb+srv://otizontezia1778:pSjGtRIb6lKJ1aUy@otscluster.7qlds67.mongodb.net/elite_trust?retryWrites=true&w=majority", {
-    useUnifiedTopology: true,
-    useNewUrlParser: true
-  }, (err) => {
-    if(err){
-      throw err;
+   mongoose.connect(
+    "mongodb+srv://alarconkelly38:4marketDaysP2023@cluster0.u4dwhay.mongodb.net/?retryWrites=true&w=majority",
+    {
+      useUnifiedTopology: true,
+      useNewUrlParser: true,
+    },
+    (err) => {
+      if (err) {
+        throw err;
+      }
+      console.log("Database is started");
     }
-    console.log('Database is started')
-
-  });
+  );
 
   routes(app);
   return app;
