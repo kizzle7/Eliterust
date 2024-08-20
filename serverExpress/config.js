@@ -40,6 +40,8 @@ module.exports = (app) => {
   //   console.log('Database is started')
 
   // });
+
+
   mongoose.connect(
     "mongodb+srv://elitetrustsinvestment:hsQ3TwWnpwsrn6vk@cluster0.vflkf.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0",
     {
